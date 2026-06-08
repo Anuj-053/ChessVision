@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Engine Test</title></head>
+<body>
+<pre id="log"></pre>
+<script>
+const log = document.getElementById('log');
+function print(s) { log.textContent += s + '\n'; console.log(s); }
+
+print('Creating worker...');
+const w = new Worker('/stockfish.js');
+
+w.onmessage = (e) => {
+  print('ENGINE: ' + e.data);
+  if (e.data === 'uciok') { print('-> sending isready'); w.postMessage('isready'); }
+  if (e.data === 'readyok') { 
+    print('-> ENGINE READY! Sending position + go');
+    w.postMessage('position startpos');
+    w.postMessage('go depth 5');
+  }
+  if (e.data && e.data.startsWith('bestmove')) {
+    print('=== SUCCESS: ' + e.data + ' ===');
+  }
+};
+
+w.onerror = (e) => print('ERROR: ' + (e.message || JSON.stringify(e)));
+
+print('Sending uci...');
+w.postMessage('uci');
+</script>
+</body>
+</html>
