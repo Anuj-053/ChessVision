@@ -82,7 +82,7 @@ chessvision/
 
 ### Prerequisites
 - Node.js 18+
-- MongoDB Atlas account (free M0 tier works)
+- MongoDB Atlas account
 
 ### 1. Clone and install
 
@@ -109,28 +109,7 @@ CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-### 3. Add Stockfish engine files
-
-The Stockfish WASM files must be in `frontend/public/`:
-
-```
-frontend/public/stockfish.js      ← from stockfish npm package: bin/stockfish-18-lite-single.js
-frontend/public/stockfish.wasm    ← from stockfish npm package: bin/stockfish-18-lite-single.wasm
-```
-
-To get them:
-```bash
-cd frontend
-npm install stockfish
-cp node_modules/stockfish/bin/stockfish-18-lite-single.js  public/stockfish.js
-cp node_modules/stockfish/bin/stockfish-18-lite-single.wasm public/stockfish.wasm
-```
-
-> These files are served statically by Vite from the `public/` folder.
-> The hook loads stockfish as `new Worker('/stockfish.js')` — a classic (non-module)
-> worker that auto-detects it's in a worker context and communicates via plain UCI strings.
-
-### 4. Run
+### 3. Run
 
 ```bash
 # Terminal 1 — backend (port 5000)
@@ -141,12 +120,6 @@ npm run dev
 cd frontend
 npm run dev
 ```
-
-The Vite dev server proxies `/api` → `http://localhost:5000` automatically, so no CORS setup is needed in development.
-
-### 5. Verify engine works
-
-Open `http://localhost:5173/test-engine.html` — you should see the engine respond with `uciok`, `readyok`, and then a `bestmove` within a few seconds. If you see errors here the WASM files are missing or in the wrong folder.
 
 ---
 
@@ -217,46 +190,6 @@ Open `http://localhost:5173/test-engine.html` — you should see the engine resp
 - **Analyse** button opens game in PGN Analyser (updates existing record, no duplicate)
 - **Delete** button with confirmation
 
----
-
-## API Routes
-
-### Auth (rate limited)
-```
-POST /api/auth/signup    Register new user
-POST /api/auth/login     Login, returns JWT + user object
-GET  /api/auth/me        Get current user (protected)
-```
-
-### Games (all protected by JWT)
-```
-POST   /api/games          Save new game
-GET    /api/games          List games  ?page=1&limit=10&mode=play&result=win
-GET    /api/games/stats    Aggregate stats + 5 recent games
-GET    /api/games/:id      Single game with full analysis array
-PATCH  /api/games/:id      Update analysis, accuracy, opening on existing game
-DELETE /api/games/:id      Delete game
-```
-
----
-
-## Stockfish Integration
-
-Stockfish runs in a Web Worker to avoid blocking the main UI thread.
-
-**How it works:**
-1. `frontend/public/stockfish.js` is loaded as `new Worker('/stockfish.js')` — a classic (non-module) worker
-2. The script auto-detects it's in a worker context (`window.document` is undefined) and enters UCI mode
-3. It fetches `stockfish.wasm` from the same origin automatically
-4. Communication is via plain UCI strings — `postMessage('go depth 12')` / `onmessage` receives UCI output lines
-
-**`useStockfish` hook exposes:**
-- `getBestMove(fen, depth, elo, callback)` — for gameplay; sets `UCI_LimitStrength` + `UCI_Elo` when elo is not null
-- `analyzePosition(fen, depth, onInfo, onBestMove)` — for sequential PGN analysis
-- `parseEval(infoLine, sideToMove)` — converts UCI score to centipawns from White's POV
-- `stop()` — cancels current search
-
-**Key constraint:** Only one search runs at a time. Calling either method while a search is active stops the current search first.
 
 ---
 
@@ -272,41 +205,4 @@ Stockfish reports eval from the side-to-move's perspective. `parseEval` normalis
 | Mistake | 51–150 cp loss | `?` | Orange |
 | Blunder | 150+ cp loss | `??` | Red |
 
-Accuracy is calculated **per player** (White = even-indexed moves, Black = odd-indexed), not averaged across both.
-
 ---
-
-## Deployment
-
-### Frontend → Vercel
-
-```bash
-# Add environment variable in Vercel dashboard:
-VITE_API_URL=https://your-backend.render.com/api
-```
-
-### Backend → Render
-
-```
-Environment variables:
-  MONGODB_URI  = mongodb+srv://...
-  JWT_SECRET   = ...
-  CLIENT_URL   = https://your-frontend.vercel.app
-  NODE_ENV     = production
-```
-
-### Database → MongoDB Atlas
-1. Create a free M0 cluster
-2. Add `0.0.0.0/0` to IP allowlist (or Render's specific outbound IPs)
-3. Copy the connection string into `MONGODB_URI`
-
----
-
-## Security
-
-- Passwords hashed with bcrypt (12 rounds), never returned in API responses
-- JWT with 7-day expiry; verified on every protected route
-- Rate limiting on auth routes prevents brute-force
-- CORS restricted to `CLIENT_URL` origin only
-- Input validation via `express-validator` on signup and login
-- All game routes require valid JWT; users can only access their own games
