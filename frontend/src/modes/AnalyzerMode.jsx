@@ -30,7 +30,7 @@ const AnalyzerMode = () => {
 
   const chess = useChessGame()
   const { analyzePosition, parseEval } = useStockfish()
-  const { ref: boardRef, boardWidth } = useBoardSize()
+  const { ref: boardRef, boardWidth } = useBoardSize({ gutter: 48 })
 
   const allMovesRef = useRef([])
   const analysisRef = useRef([])
@@ -295,14 +295,14 @@ const AnalyzerMode = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="game-wrap">
         {/* Eval Bar */}
-        <div className="relative w-10 bg-gray-900 border-r border-gray-800">
+        <div className="eval-col relative bg-gray-900 border-r border-gray-800" style={{ width: 40 }}>
           <EvalBar evaluation={currentEval} />
         </div>
 
         {/* Board */}
-        <div ref={boardRef} className="flex-1 flex items-center justify-center p-6">
+        <div ref={boardRef} className="board-col flex-1 flex items-center justify-center p-6">
           <div className="flex flex-col items-center gap-4">
             {currentAnalysis && (
               <div className="flex items-center gap-3 text-sm">
@@ -355,7 +355,7 @@ const AnalyzerMode = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="w-72 bg-gray-900 border-l border-gray-800 flex flex-col">
+        <div className="game-sidebar flex flex-col" style={{ width: 280, background: 'var(--bg-1)', borderLeft: '1px solid var(--line)' }}>
           <div className="p-4 border-b border-gray-800">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Opening</div>
             <div className="text-sm text-white font-medium">{detectOpening(allMovesRef.current)}</div>

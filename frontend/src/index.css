@@ -2,80 +2,319 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ──────────────────────────────────────────────────────────
+   Palette: near-black base, warm graphite surfaces, gold accent with glow,
+   and a very subtle warm tint to the darks (not pure #000) so pieces/board
+   read well against the background.
+   Signature: the board sits inside a "lit frame" — a hairline warm border
+   with a soft inner glow — making the game surface feel like a dedicated
+   stage rather than a div on a page.
+──────────────────────────────────────────────────────────────────────────── */
 :root {
-  --bg-primary: #030712;
-  --bg-secondary: #111827;
-  --bg-card: #1f2937;
-  --accent: #FBBF24;
-  --accent-dark: #D97706;
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --border: #374151;
+  /* Backgrounds — warm-tinted darks feel richer than pure black */
+  --bg-0:      #0C0C0E;   /* page base */
+  --bg-1:      #131316;   /* cards, panels */
+  --bg-2:      #1A1A1F;   /* raised surfaces */
+  --bg-3:      #222228;   /* inputs, overlays */
+
+  /* Borders */
+  --line:      rgba(255,255,255,0.06);
+  --line-hi:   rgba(255,255,255,0.12);
+
+  /* Text */
+  --t1:  #EEEEF0;
+  --t2:  #8888A0;
+  --t3:  #4A4A5A;
+
+  /* Gold — the single accent colour, used sparingly */
+  --gold:      #E8A020;
+  --gold-hi:   #F5B840;
+  --gold-dim:  rgba(232,160,32,0.15);
+  --gold-glow: rgba(232,160,32,0.30);
+
+  /* Semantic */
+  --green:  #34D399;
+  --red:    #F87171;
+  --blue:   #60A5FA;
+  --purple: #A78BFA;
 }
 
-* {
-  box-sizing: border-box;
-}
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
-  margin: 0;
+  height: 100%;
+  background: var(--bg-0);
+  color: var(--t1);
+  font-family: 'Inter', 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.font-display { font-family: 'Playfair Display', serif; }
-.font-mono { font-family: 'JetBrains Mono', monospace; }
+#root { height: 100%; display: flex; flex-direction: column; }
 
-/* Eval bar */
-.eval-bar {
-  transition: height 0.5s ease;
+/* ── Typography roles ────────────────────────────────────────────────────── */
+.display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
+.mono { font-family: 'Space Mono', 'JetBrains Mono', monospace; }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #4B5563;
+/* ── Surface helpers ─────────────────────────────────────────────────────── */
+.surface {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
 }
 
-/* Move classification colors */
-.move-brilliant { color: #06b6d4; }
-.move-good { color: #22c55e; }
-.move-book { color: #a78bfa; }
-.move-inaccuracy { color: #eab308; }
-.move-mistake { color: #f97316; }
-.move-blunder { color: #ef4444; }
-
-/* Chessboard customization */
-.chess-board-wrapper {
-  filter: drop-shadow(0 25px 60px rgba(0,0,0,0.8));
+.surface-raised {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 0 0 var(--line-hi) inset, 0 8px 40px rgba(0,0,0,0.5);
 }
 
-/* Animations */
-@keyframes fadeIn {
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #0C0C0E;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.12) inset;
+}
+.btn-primary:hover {
+  background: var(--gold-hi);
+  box-shadow: 0 0 24px var(--gold-glow), 0 1px 0 rgba(255,255,255,0.12) inset;
+  transform: translateY(-1px);
+}
+.btn-primary:active  { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-ghost {
+  background: var(--bg-3);
+  color: var(--t2);
+  border-color: var(--line);
+}
+.btn-ghost:hover { color: var(--t1); border-color: var(--line-hi); }
+
+.btn-danger {
+  background: rgba(248,113,113,0.08);
+  color: var(--red);
+  border-color: rgba(248,113,113,0.2);
+}
+.btn-danger:hover { background: rgba(248,113,113,0.14); }
+
+/* ── Form inputs ─────────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--t1);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input::placeholder { color: var(--t3); }
+.input:focus { border-color: var(--gold); }
+
+/* ── Board frame — the signature element ────────────────────────────────── */
+/* A warm inner glow makes the board feel like a lit stage under spotlights */
+.board-frame {
+  border-radius: 4px;
+  position: relative;
+  /* layered shadows: close ambient + far bloom */
+  box-shadow:
+    0 0 0 1px rgba(232,160,32,0.12),
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 8px  24px rgba(0,0,0,0.6),
+    0 32px 80px rgba(0,0,0,0.7);
+}
+/* Top-left warm rim light */
+.board-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(232,160,32,0.08) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Player nameplate ────────────────────────────────────────────────────── */
+.nameplate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+}
+
+/* ── Move history ────────────────────────────────────────────────────────── */
+.move-row { display: flex; align-items: stretch; }
+.move-num {
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 11px;
+  color: var(--t3);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.move-btn {
+  flex: 1;
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--t2);
+  border-radius: 4px;
+  transition: all 0.1s;
+  font-family: 'Space Mono', monospace;
+}
+.move-btn:hover { background: var(--bg-3); color: var(--t1); }
+.move-btn.active { background: var(--gold-dim); color: var(--gold); }
+
+/* ── Classification colours ──────────────────────────────────────────────── */
+.clr-brilliant  { color: #22D3EE; }
+.clr-good       { color: #34D399; }
+.clr-inaccuracy { color: #FBBF24; }
+.clr-mistake    { color: #FB923C; }
+.clr-blunder    { color: #F87171; }
+
+/* ── Badge ───────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes goldPulse {
+  0%,100% { box-shadow: 0 0 0 0 var(--gold-glow);     }
+  50%      { box-shadow: 0 0 24px 4px var(--gold-glow); }
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+.anim-fade-up    { animation: fadeUp 0.3s ease both; }
+.anim-fade-in    { animation: fadeIn 0.2s ease both; }
+.anim-slide-down { animation: slideDown 0.2s ease both; }
+.anim-gold-pulse { animation: goldPulse 2.5s ease infinite; }
+
+/* ── Game layout — responsive ────────────────────────────────────────────── */
+.game-wrap,
+.game-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 0;
 }
 
-@keyframes pulse-gold {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(251, 191, 36, 0); }
+/* On mobile: stack board above sidebar */
+@media (max-width: 767px) {
+  .game-wrap,
+  .game-layout {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    min-height: 0;
+  }
+
+  /* Board column: don't constrain height, let it size naturally */
+  .board-col {
+    flex: none !important;
+    width: 100% !important;
+    padding: 12px !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Eval bar not useful on mobile — hide it */
+  .eval-col { display: none !important; }
+
+  /* Sidebar becomes a compact bottom panel */
+  .game-sidebar {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-height: 200px;
+    border-left: none !important;
+    border-top: 1px solid var(--line) !important;
+    flex-shrink: 0;
+  }
 }
 
-.animate-fade-in { animation: fadeIn 0.3s ease forwards; }
-.animate-slide-in { animation: slideIn 0.3s ease forwards; }
-.animate-pulse-gold { animation: pulse-gold 2s infinite; }
+/* ── Mode setup cards (color / difficulty pickers) ───────────────────────── */
+.pick-card {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.pick-card:hover   { border-color: var(--line-hi); }
+.pick-card.selected {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
+
+/* ── Topbar ──────────────────────────────────────────────────────────────── */
+.topbar {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+/* ── Responsive visibility helpers ───────────────────────────────────────── */
+@media (max-width: 767px) {
+  .hidden-mobile { display: none !important; }
+}
+@media (min-width: 768px) {
+  .show-mobile   { display: none !important; }
+}
