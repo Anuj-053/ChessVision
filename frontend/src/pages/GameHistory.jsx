@@ -70,7 +70,7 @@ const GameHistory = () => {
     <select
       value={filters[name]}
       onChange={e => { setFilters(f => ({ ...f, [name]: e.target.value })); setPage(1) }}
-      className="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-400 transition-colors"
+      className="bg-[#151822] border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-400 transition-colors"
     >
       <option value="">{label}</option>
       {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -78,8 +78,8 @@ const GameHistory = () => {
   )
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <div className="border-b border-gray-800 bg-gray-900/50 px-6 py-5">
+    <div className="min-h-screen bg-black">
+      <div className="border-b border-amber-500/10 bg-black px-6 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="font-display text-2xl font-bold text-white">Game History</h1>
@@ -126,7 +126,7 @@ const GameHistory = () => {
           </div>
         ) : (
           <>
-            <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-6">
+            <div className="bg-[#0F1117] border border-gray-800 rounded-xl overflow-hidden mb-6">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
@@ -139,7 +139,7 @@ const GameHistory = () => {
                 </thead>
                 <tbody>
                   {games.map((game) => (
-                    <tr key={game._id} className="border-b border-gray-800/50 hover:bg-gray-800/20 transition-colors">
+                    <tr key={game._id} className="border-b border-gray-800/50 hover:bg-amber-500/5 transition-colors">
                       <td className="px-4 py-3 text-gray-300">{MODE_LABEL[game.mode] || game.mode}</td>
                       <td className="px-4 py-3 text-gray-400 max-w-[140px] truncate" title={game.opening}>
                         {game.opening}
@@ -189,7 +189,7 @@ const GameHistory = () => {
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-gray-300 rounded-lg text-sm transition-colors"
+                  className="px-4 py-2 bg-[#151822] hover:bg-amber-500/10 disabled:opacity-40 text-gray-300 rounded-lg text-sm transition-colors"
                 >
                   ← Prev
                 </button>
@@ -199,7 +199,7 @@ const GameHistory = () => {
                 <button
                   onClick={() => setPage(p => Math.min(pages, p + 1))}
                   disabled={page === pages}
-                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-40 text-gray-300 rounded-lg text-sm transition-colors"
+                  className="px-4 py-2 bg-[#151822] hover:bg-amber-500/10 disabled:opacity-40 text-gray-300 rounded-lg text-sm transition-colors"
                 >
                   Next →
                 </button>
