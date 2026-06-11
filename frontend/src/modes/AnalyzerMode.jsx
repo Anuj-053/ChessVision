@@ -228,35 +228,84 @@ const AnalyzerMode = () => {
 
   // ── PGN Input ────────────────────────────────────────────────────────────
   if (!loaded) return (
-    <div className="min-h-screen bg-gray-950 flex flex-col">
-      <div className="border-b border-gray-800 bg-gray-900/50 px-6 py-3 flex items-center gap-3">
-        <span className="text-amber-400 text-xl">🔍</span>
-        <h1 className="font-display text-lg font-bold text-white">PGN Analyzer</h1>
-      </div>
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-2xl">
-          <h2 className="font-display text-2xl font-bold text-white mb-2">Analyze a Game</h2>
-          <p className="text-gray-500 text-sm mb-6">Paste a PGN or upload a file to get move-by-move engine analysis.</p>
-          {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
+    <div style={{ minHeight:'100%', background:'var(--bg-0)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:24, position:'relative', overflow:'hidden' }}>
+      {/* Background glow */}
+      <div style={{ position:'absolute', top:'40%', left:'50%', transform:'translate(-50%,-50%)', width:600, height:400, borderRadius:'50%',
+        background:'radial-gradient(ellipse, rgba(232,160,32,0.06) 0%, transparent 65%)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', top:0, right:0, width:280, height:280,
+        backgroundImage:'radial-gradient(rgba(232,160,32,0.12) 1px, transparent 1px)', backgroundSize:'22px 22px',
+        opacity:0.5, pointerEvents:'none',
+        maskImage:'radial-gradient(ellipse 55% 55% at 100% 0%, black 20%, transparent 75%)',
+        WebkitMaskImage:'radial-gradient(ellipse 55% 55% at 100% 0%, black 20%, transparent 75%)',
+      }} />
+
+      <div className="anim-fade-up" style={{ width:'100%', maxWidth:600, position:'relative' }}>
+        {/* Hero */}
+        <div style={{ textAlign:'center', marginBottom:32 }}>
+          <div style={{
+            display:'inline-flex', alignItems:'center', justifyContent:'center',
+            width:72, height:72, borderRadius:20, marginBottom:20,
+            background:'linear-gradient(135deg, rgba(232,160,32,0.18) 0%, rgba(232,160,32,0.06) 100%)',
+            border:'1px solid rgba(232,160,32,0.35)',
+            fontSize:30, color:'#E8A020',
+            boxShadow:'0 8px 32px rgba(232,160,32,0.18)',
+          }}>◈</div>
+          <h1 className="display" style={{ fontSize:28, color:'var(--t1)', marginBottom:8 }}>Analyze a Game</h1>
+          <p style={{ fontSize:13, color:'var(--t3)', lineHeight:1.6 }}>
+            Paste a PGN or upload a file — Stockfish analyses every move at depth 12.
+          </p>
+        </div>
+
+        {/* Card */}
+        <div style={{ background:'var(--bg-1)', border:'1px solid var(--line)', borderRadius:20, padding:'28px 24px',
+          boxShadow:'0 24px 80px rgba(0,0,0,0.4)', display:'flex', flexDirection:'column', gap:16 }}>
+
+          {error && (
+            <div style={{ padding:'10px 14px', borderRadius:10, background:'rgba(248,113,113,0.08)',
+              border:'1px solid rgba(248,113,113,0.25)', color:'#F87171', fontSize:13 }}>{error}</div>
+          )}
+
           <textarea
             value={pgnInput}
             onChange={e => setPgnInput(e.target.value)}
-            className="w-full h-56 bg-gray-900 border border-gray-700 rounded-xl p-4 text-gray-300 font-mono text-xs resize-none focus:outline-none focus:border-amber-400 transition-colors"
+            style={{
+              width:'100%', height:200, background:'var(--bg-2)', border:'1px solid var(--line)',
+              borderRadius:12, padding:'14px 16px', color:'var(--t2)', fontFamily:'monospace',
+              fontSize:12, lineHeight:1.7, resize:'none', outline:'none', transition:'border-color 0.15s',
+              boxSizing:'border-box',
+            }}
+            onFocus={e => e.target.style.borderColor='rgba(232,160,32,0.5)'}
+            onBlur={e => e.target.style.borderColor='var(--line)'}
             placeholder={'[Event "Game"]\n[White "Player1"]\n[Black "Player2"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 ...'}
           />
-          <div className="flex items-center gap-3 mt-4">
-            <button onClick={handleLoadPgn}
-              className="px-6 py-2.5 bg-amber-400 hover:bg-amber-500 text-gray-950 font-semibold rounded-lg transition-colors">
+
+          <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
+            <button onClick={handleLoadPgn} style={{
+              padding:'11px 22px', borderRadius:12, border:'none', cursor:'pointer',
+              background:'linear-gradient(135deg, #E8A020 0%, #D4820A 100%)',
+              color:'#0C0C0E', fontSize:14, fontWeight:800, transition:'all 0.15s',
+              boxShadow:'0 4px 20px rgba(232,160,32,0.35)',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(232,160,32,0.45)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform='none'; e.currentTarget.style.boxShadow='0 4px 20px rgba(232,160,32,0.35)' }}>
               Load PGN
             </button>
-            <label className="px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg cursor-pointer transition-colors text-sm">
-              Upload File
-              <input type="file" accept=".pgn,.txt" onChange={handleFileUpload} className="hidden" />
+
+            <label style={{
+              padding:'11px 18px', borderRadius:12, border:'1px solid var(--line)', cursor:'pointer',
+              background:'var(--bg-2)', color:'var(--t2)', fontSize:13, fontWeight:600, transition:'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor='var(--line-hi)'; e.currentTarget.style.color='var(--t1)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor='var(--line)'; e.currentTarget.style.color='var(--t2)' }}>
+              Upload .pgn
+              <input type="file" accept=".pgn,.txt" onChange={handleFileUpload} style={{ display:'none' }} />
             </label>
-            <button
-              onClick={() => setPgnInput('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. Nbd2 Bb7 12. Bc2 Re8 13. Nf1 Bf8 14. Ng3 g6 15. a4 c5 16. d5')}
-              className="text-xs text-gray-500 hover:text-gray-400 transition-colors ml-auto">
-              Load sample
+
+            <button onClick={() => setPgnInput('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. Nbd2 Bb7 12. Bc2 Re8 13. Nf1 Bf8 14. Ng3 g6 15. a4 c5 16. d5')}
+              style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--t3)', transition:'color 0.12s' }}
+              onMouseEnter={e => e.currentTarget.style.color='var(--t2)'}
+              onMouseLeave={e => e.currentTarget.style.color='var(--t3)'}>
+              Load sample ↗
             </button>
           </div>
         </div>

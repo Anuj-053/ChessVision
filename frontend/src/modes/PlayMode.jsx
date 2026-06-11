@@ -1,3 +1,4 @@
+import { SetupScreen, SectionLabel, OptionButton, StartButton } from '../components/Layout/SetupScreen'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ChessBoard from '../components/Board/ChessBoard'
@@ -121,53 +122,57 @@ const PlayMode = () => {
 
   /* ── Setup screen ─────────────────────────────────────────────────────── */
   if (!gameStarted) return (
-    <div style={{ minHeight:'100%', background:'var(--bg-0)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
-      <div style={{ width:'100%', maxWidth:460 }} className="anim-fade-up">
-        <div style={{ textAlign:'center', marginBottom:28 }}>
-          <div style={{ fontSize:40 }}>⚔️</div>
-          <h1 className="display" style={{ fontSize:22, marginTop:10 }}>Play vs Computer</h1>
-          <p style={{ fontSize:13, color:'var(--t3)', marginTop:4 }}>Choose your color and difficulty</p>
-        </div>
-
-        <div className="surface-raised" style={{ borderRadius:16, padding:24, display:'flex', flexDirection:'column', gap:24 }}>
-          {/* Color */}
-          <div>
-            <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:'var(--t3)', marginBottom:10 }}>Play as</p>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
-              {[{v:'white',i:'♔',l:'White'},{v:'black',i:'♚',l:'Black'},{v:'random',i:'🎲',l:'Random'}].map(({v,i,l}) => (
-                <button key={v} onClick={() => setPlayerColor(v)} className={`pick-card ${playerColor===v?'selected':''}`}
-                  style={{ textAlign:'center', padding:'14px 8px' }}>
-                  <div style={{ fontSize:24, marginBottom:6 }}>{i}</div>
-                  <div style={{ fontSize:12, fontWeight:600, color: playerColor===v ? 'var(--gold)' : 'var(--t2)' }}>{l}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Difficulty */}
-          <div>
-            <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:'var(--t3)', marginBottom:10 }}>Difficulty</p>
-            <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-              {DIFFICULTIES.map(({ label, value, elo, desc }) => (
-                <button key={value} onClick={() => setDifficulty(value)} className={`pick-card ${difficulty===value?'selected':''}`}
-                  style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                  <div>
-                    <span style={{ fontSize:13, fontWeight:600, color: difficulty===value ? 'var(--gold)' : 'var(--t1)' }}>{label}</span>
-                    <span style={{ fontSize:11, color:'var(--t3)', marginLeft:8 }}>{elo ? `~${elo} Elo` : 'Max'}</span>
-                    <p style={{ fontSize:11, color:'var(--t3)', marginTop:2 }}>{desc}</p>
-                  </div>
-                  {difficulty===value && <span style={{ color:'var(--gold)', fontSize:14 }}>✓</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button onClick={() => startGame(playerColor)} className="btn btn-primary" style={{ width:'100%', padding:'13px 0', fontSize:15 }}>
-            Start Game
-          </button>
+    <SetupScreen
+      icon="♟"
+      title="Play vs Computer"
+      subtitle="Challenge Stockfish at any level — from friendly beginner to near-perfect engine strength."
+      accent="#34D399"
+    >
+      {/* Color */}
+      <div>
+        <SectionLabel>Play as</SectionLabel>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+          {[{v:'white',i:'♔',l:'White'},{v:'black',i:'♚',l:'Black'},{v:'random',i:'🎲',l:'Random'}].map(({v,i,l}) => (
+            <OptionButton key={v} selected={playerColor===v} accent="#34D399" onClick={() => setPlayerColor(v)}>
+              <div style={{ fontSize:26, marginBottom:6, lineHeight:1 }}>{i}</div>
+              <div style={{ fontSize:12, fontWeight:700, color: playerColor===v ? '#34D399' : 'var(--t2)' }}>{l}</div>
+            </OptionButton>
+          ))}
         </div>
       </div>
-    </div>
+
+      {/* Difficulty */}
+      <div>
+        <SectionLabel>Difficulty</SectionLabel>
+        <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+          {DIFFICULTIES.map(({ label, value, elo, desc }) => (
+            <button key={value} onClick={() => setDifficulty(value)} style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'13px 16px', borderRadius:12, cursor:'pointer', outline:'none',
+              border:`2px solid ${difficulty===value ? '#34D399' : 'var(--line)'}`,
+              background: difficulty===value ? 'rgba(52,211,153,0.08)' : 'var(--bg-2)',
+              transition:'all 0.15s',
+            }}
+            onMouseEnter={e => { if (difficulty!==value) e.currentTarget.style.borderColor='var(--line-hi)' }}
+            onMouseLeave={e => { if (difficulty!==value) e.currentTarget.style.borderColor='var(--line)' }}>
+              <div style={{ textAlign:'left' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:13, fontWeight:700, color: difficulty===value ? '#34D399' : 'var(--t1)' }}>{label}</span>
+                  {elo && <span style={{ fontSize:11, color:'var(--t3)', background:'var(--bg-3)', padding:'2px 7px', borderRadius:6 }}>~{elo} Elo</span>}
+                  {!elo && <span style={{ fontSize:11, color:'var(--t3)', background:'var(--bg-3)', padding:'2px 7px', borderRadius:6 }}>Max</span>}
+                </div>
+                <p style={{ fontSize:11, color:'var(--t3)', marginTop:3 }}>{desc}</p>
+              </div>
+              {difficulty===value && <span style={{ color:'#34D399', fontSize:16, flexShrink:0 }}>✓</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <StartButton onClick={() => startGame(playerColor)} accent="#34D399">
+        Start Game
+      </StartButton>
+    </SetupScreen>
   )
 
   /* ── Game screen ──────────────────────────────────────────────────────── */

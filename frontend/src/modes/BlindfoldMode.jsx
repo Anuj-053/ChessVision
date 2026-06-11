@@ -1,3 +1,4 @@
+import { SetupScreen, SectionLabel, OptionButton, StartButton } from '../components/Layout/SetupScreen'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import ChessBoard from '../components/Board/ChessBoard'
 import MoveHistory from '../components/GameControls/MoveHistory'
@@ -82,45 +83,35 @@ const BlindfoldMode = () => {
   }
 
   if (!gameStarted) return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background:'var(--bg-base)' }}>
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-3 opacity-60">◉</div>
-          <h1 className="font-display text-2xl font-bold text-white">Blindfold Training</h1>
-          <p className="text-sm mt-1" style={{ color:'var(--text-3)' }}>Board hidden — type moves in algebraic notation</p>
-        </div>
-        <div className="glass-raised rounded-2xl p-5 space-y-5">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-widest block mb-3" style={{ color:'var(--text-3)' }}>Play as</label>
-            <div className="grid grid-cols-2 gap-2">
-              {[{value:'white',icon:'♔',label:'White'},{value:'black',icon:'♚',label:'Black'}].map(({value,icon,label}) => (
-                <button key={value} onClick={() => setPlayerColor(value)}
-                  className="py-3 rounded-xl text-sm font-medium transition-all"
-                  style={{ border:`2px solid ${playerColor===value?'var(--gold)':'var(--border)'}`,
-                           background:playerColor===value?'rgba(240,165,0,0.08)':'var(--bg-overlay)',
-                           color:playerColor===value?'var(--gold)':'var(--text-2)' }}>
-                  <div className="text-xl mb-1">{icon}</div>{label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-widest block mb-3" style={{ color:'var(--text-3)' }}>Difficulty</label>
-            <div className="grid grid-cols-2 gap-2">
-              {DIFFICULTIES.map(({label,value}) => (
-                <button key={value} onClick={() => setDifficulty(value)}
-                  className="py-2.5 px-4 rounded-xl text-sm font-medium transition-all"
-                  style={{ border:`2px solid ${difficulty===value?'var(--gold)':'var(--border)'}`,
-                           background:difficulty===value?'rgba(240,165,0,0.08)':'var(--bg-overlay)',
-                           color:difficulty===value?'var(--gold)':'var(--text-2)' }}>{label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <button onClick={startGame} className="btn-gold w-full py-3 rounded-xl font-semibold">Start Blindfold Game</button>
+    <SetupScreen
+      icon="◉"
+      title="Blindfold Training"
+      subtitle="The board is completely hidden. Visualize every piece, type every move from pure memory."
+      accent="#A78BFA"
+    >
+      <div>
+        <SectionLabel>Play as</SectionLabel>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          {[{value:'white',icon:'♔',label:'White'},{value:'black',icon:'♚',label:'Black'}].map(({value,icon,label}) => (
+            <OptionButton key={value} selected={playerColor===value} accent="#A78BFA" onClick={() => setPlayerColor(value)}>
+              <div style={{ fontSize:26, marginBottom:6 }}>{icon}</div>
+              <div style={{ fontSize:12, fontWeight:700, color:playerColor===value?'#A78BFA':'var(--t2)' }}>{label}</div>
+            </OptionButton>
+          ))}
         </div>
       </div>
-    </div>
+      <div>
+        <SectionLabel>Difficulty</SectionLabel>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          {DIFFICULTIES.map(({label,value}) => (
+            <OptionButton key={value} selected={difficulty===value} accent="#A78BFA" onClick={() => setDifficulty(value)} style={{ flexDirection:'row', gap:8 }}>
+              <span style={{ fontSize:13, fontWeight:700, color:difficulty===value?'#A78BFA':'var(--t2)' }}>{label}</span>
+            </OptionButton>
+          ))}
+        </div>
+      </div>
+      <StartButton onClick={startGame} accent="#A78BFA">Start Blindfold Game</StartButton>
+    </SetupScreen>
   )
 
   return (
